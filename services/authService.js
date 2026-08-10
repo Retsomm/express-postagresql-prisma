@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import * as authRepository from '../repositories/authRepository.js';
 import createAppError from '../errors/AppError.js';
