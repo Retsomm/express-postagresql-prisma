@@ -93,8 +93,79 @@ router.get('/:id', getUserController);
  */
 router.post('/', validate(createUserSchema), createUserController);
 
+/**
+ * @openapi
+ * /users/{id}:
+ *   patch:
+ *     summary: 更新使用者
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: 小明
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: ming@example.com
+ *     responses:
+ *       200:
+ *         description: 更新成功
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status: { type: string, example: success }
+ *                 data:
+ *                   $ref: '#/components/schemas/User'
+ *       400:
+ *         description: 資料驗證失敗
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: 找不到使用者
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.patch('/:id', validate(updateUserSchema), updateUserController);
 
+/**
+ * @openapi
+ * /users/{id}:
+ *   delete:
+ *     summary: 刪除使用者（連同刪除其底下的文章）
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       204:
+ *         description: 刪除成功，無回傳內容
+ *       404:
+ *         description: 找不到使用者
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.delete('/:id', deleteUserController);
 
 export default router;

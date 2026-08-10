@@ -15,3 +15,19 @@ export const createTagController = catchAsync(async (req, res, next) => {
 
   successResponse(res, 201, newTag);
 });
+
+export const updateTagController = catchAsync(async (req, res, next) => {
+  const tagId = Number(req.params.id);
+
+  const updatedTag = await tagService.updateExistingTag({ tagId, data: req.body });
+
+  successResponse(res, 200, updatedTag);
+});
+
+export const deleteTagController = catchAsync(async (req, res, next) => {
+  const tagId = Number(req.params.id);
+
+  await tagService.deleteExistingTag({ tagId });
+
+  res.status(204).send();
+});
