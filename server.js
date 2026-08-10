@@ -8,6 +8,10 @@ import createAppError from './errors/AppError.js';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './config/swagger.js';
 
+if (!process.env.JWT_SECRET) {
+  throw new Error('缺少環境變數 JWT_SECRET，請在 .env 設定後再啟動伺服器');
+}
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 

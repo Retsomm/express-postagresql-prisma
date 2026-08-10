@@ -9,7 +9,9 @@ const options = {
       description: '使用者、文章、標籤的 RESTful API 文件',
     },
     servers: [
-      { url: 'http://localhost:3000', description: '本機開發環境' },
+      // 用相對路徑而不是寫死 localhost，這樣不管部署到哪個網域，
+      // Swagger UI 的「Try it out」都會打到目前這個網頁所在的主機
+      { url: '/', description: '目前伺服器' },
     ],
     components: {
       securitySchemes: {
