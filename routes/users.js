@@ -1,14 +1,15 @@
+import express from 'express';
 import validate from '../middlewares/validate.js';
 import { createUserSchema, updateUserSchema } from '../schemas/userSchema.js';
-import express from 'express';
-import createAppError from '../errors/AppError.js';
-import catchAsync from '../utils/catchAsync.js';
-import { successResponse } from '../utils/response.js';
-import prisma from '../lib/prisma.js';
-import { safeUserSelect } from '../utils/selects.js';
+import {
+  getUsersController,
+  getUserController,
+  createUserController,
+  updateUserController,
+  deleteUserController,
+} from '../controllers/userController.js';
 
 const router = express.Router();
-
 
 /**
  * @openapi
@@ -31,26 +32,7 @@ const router = express.Router();
  *       200:
  *         description: 成功取得列表
  */
-router.get('/', catchAsync(async (req, res) => {
-  const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 10;
-
-  const [items, totalItems] = await Promise.all([
-    prisma.user.findMany({
-      skip: (page -1) * limit,
-      take: limit,
-      orderBy: { id:'asc'},
-      select: safeUserSelect, // 加上這一行
-    }),
-    prisma.user.count(),
-  ]);
-  
-  successResponse(res,200, items, {
-    currentPage: page,
-    totalItems,
-    totalPages: Math.ceil(totalItems / limit),
-  });
-}));
+router.get('/', getUsersController);
 /**
  * @openapi
  * /users/{id}:
@@ -81,19 +63,7 @@ router.get('/', catchAsync(async (req, res) => {
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/:id',catchAsync(async(req,res,next)=> {
-  const userId = Number(req.params.id);
-
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { ...safeUserSelect, posts: true }, // 如果要連同 posts 一起查，這樣
-  });
-  
-  if(!user){
-    throw createAppError(`找不到 id 為 ${userId} 的使用者`, 404);
-  }
-  successResponse(res,200,user);
-}));
+router.get('/:id', getUserController);
 /**
  * @openapi
  * /users:
@@ -121,40 +91,10 @@ router.get('/:id',catchAsync(async(req,res,next)=> {
  *       400:
  *         description: 資料驗證失敗
  */
-router.post('/',validate(createUserSchema),catchAsync(async (req, res) => {
-  const { name, email } = req.body;
-  
-  const newUser = await prisma.user.create({
-    data:{name, email},
-  });
-  
-  successResponse(res,201,newUser);
-}));
+router.post('/', validate(createUserSchema), createUserController);
 
-router.patch('/:id',validate(updateUserSchema) ,catchAsync(async(req,res,next)=> {
-  const userId = Number(req.params.id);
+router.patch('/:id', validate(updateUserSchema), updateUserController);
 
-  const user = await prisma.user.update({
-    where: { id: userId },
-    data: req.body,
-  }).catch(()=>{
-    // Prisma 找不到資料時會丟出 P2025 錯誤，這裡攔下來轉成我們自己統一的錯誤格式
-    throw createAppError(`找不到 id 為 ${userId} 的使用者`, 404);
-  })
-  
-  successResponse(res,200,user);
-}));
-
-router.delete('/:id',catchAsync(async(req,res,next)=> {
-  const userId = Number(req.params.id);
-
-  await prisma.user.delete({
-    where: { id: userId },
-  }).catch(()=>{
-    throw createAppError(`找不到 id 為 ${userId} 的使用者`, 404);
-  });
-  
-  res.status(204).send();
-}));
+router.delete('/:id', deleteUserController);
 
 export default router;

@@ -1,7 +1,5 @@
 import express from 'express';
-import prisma from '../lib/prisma.js';
-import catchAsync from '../utils/catchAsync.js';
-import { successResponse } from '../utils/response.js';
+import { getTagsController, createTagController } from '../controllers/tagController.js';
 
 const router = express.Router();
 /**
@@ -14,10 +12,7 @@ const router = express.Router();
  *       200:
  *         description: 成功取得標籤列表
  */
-router.get('/',catchAsync(async (req,res,next)=>{
-    const tags = await prisma.tag.findMany({include: { posts: true },});
-    successResponse(res, 200, tags);
-}));
+router.get('/', getTagsController);
 /**
  * @openapi
  * /tags:
@@ -37,12 +32,6 @@ router.get('/',catchAsync(async (req,res,next)=>{
  *       201:
  *         description: 新增成功
  */
-router.post('/',catchAsync(async (req,res,next)=>{
-    const { name } = req.body;
-    const newTag = await prisma.tag.create({
-        data: { name }
-    });
-    successResponse(res, 201, newTag);
-}));
+router.post('/', createTagController);
 
 export default router;
