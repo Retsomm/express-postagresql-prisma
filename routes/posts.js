@@ -1,7 +1,7 @@
 import express from 'express';
 import authenticate from '../middlewares/authenticate.js';
 import validate from '../middlewares/validate.js';
-import { createPostSchema } from '../schemas/postSchema.js';
+import { createPostSchema, updatePostSchema } from '../schemas/postSchema.js';
 import {
   getPostsController,
   createPostController,
@@ -39,6 +39,12 @@ const router = express.Router();
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/Post'
+ *                 meta:
+ *                   type: object
+ *                   properties:
+ *                     currentPage: { type: integer, example: 1 }
+ *                     totalItems: { type: integer, example: 42 }
+ *                     totalPages: { type: integer, example: 5 }
  */
 router.get('/', getPostsController);
 
@@ -149,7 +155,7 @@ router.post('/', authenticate, validate(createPostSchema), createPostController)
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.patch('/:id', authenticate, updatePostController);
+router.patch('/:id', authenticate, validate(updatePostSchema), updatePostController);
 
 /**
  * @openapi

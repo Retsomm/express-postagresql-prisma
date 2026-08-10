@@ -1,4 +1,7 @@
 import express from 'express';
+import authenticate from '../middlewares/authenticate.js';
+import validate from '../middlewares/validate.js';
+import { createTagSchema, updateTagSchema } from '../schemas/tagSchema.js';
 import {
   getTagsController,
   createTagController,
@@ -22,8 +25,10 @@ router.get('/', getTagsController);
  * @openapi
  * /tags:
  *   post:
- *     summary: 新增標籤
+ *     summary: 新增標籤（需要登入）
  *     tags: [Tags]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -36,14 +41,22 @@ router.get('/', getTagsController);
  *     responses:
  *       201:
  *         description: 新增成功
+ *       401:
+ *         description: 未登入
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
-router.post('/', createTagController);
+router.post('/', authenticate, validate(createTagSchema), createTagController);
 /**
  * @openapi
  * /tags/{id}:
  *   patch:
- *     summary: 更新標籤
+ *     summary: 更新標籤（需要登入）
  *     tags: [Tags]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -67,6 +80,12 @@ router.post('/', createTagController);
  *                 status: { type: string, example: success }
  *                 data:
  *                   $ref: '#/components/schemas/Tag'
+ *       401:
+ *         description: 未登入
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *       404:
  *         description: 找不到標籤
  *         content:
@@ -74,13 +93,15 @@ router.post('/', createTagController);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.patch('/:id', updateTagController);
+router.patch('/:id', authenticate, validate(updateTagSchema), updateTagController);
 /**
  * @openapi
  * /tags/{id}:
  *   delete:
- *     summary: 刪除標籤
+ *     summary: 刪除標籤（需要登入）
  *     tags: [Tags]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -89,6 +110,12 @@ router.patch('/:id', updateTagController);
  *     responses:
  *       204:
  *         description: 刪除成功，無回傳內容
+ *       401:
+ *         description: 未登入
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *       404:
  *         description: 找不到標籤
  *         content:
@@ -96,6 +123,6 @@ router.patch('/:id', updateTagController);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.delete('/:id', deleteTagController);
+router.delete('/:id', authenticate, deleteTagController);
 
 export default router;

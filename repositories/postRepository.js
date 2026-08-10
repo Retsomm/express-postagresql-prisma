@@ -42,7 +42,3 @@ export const updatePost = (id, data) => {
 export const deletePost = (id) => {
   return prisma.post.delete({ where: { id } });
 };
-
-export const deleteManyPostsByAuthorId = (authorId) => {
-  return prisma.post.deleteMany({ where: { authorId } });
-};

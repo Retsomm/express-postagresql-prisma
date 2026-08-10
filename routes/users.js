@@ -1,10 +1,9 @@
 import express from 'express';
 import validate from '../middlewares/validate.js';
-import { createUserSchema, updateUserSchema } from '../schemas/userSchema.js';
+import { updateUserSchema } from '../schemas/userSchema.js';
 import {
   getUsersController,
   getUserController,
-  createUserController,
   updateUserController,
   deleteUserController,
 } from '../controllers/userController.js';
@@ -64,34 +63,6 @@ router.get('/', getUsersController);
  *               $ref: '#/components/schemas/Error'
  */
 router.get('/:id', getUserController);
-/**
- * @openapi
- * /users:
- *   post:
- *     summary: 新增使用者
- *     tags: [Users]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [name, email]
- *             properties:
- *               name:
- *                 type: string
- *                 example: 小明
- *               email:
- *                 type: string
- *                 format: email
- *                 example: ming@example.com
- *     responses:
- *       201:
- *         description: 新增成功
- *       400:
- *         description: 資料驗證失敗
- */
-router.post('/', validate(createUserSchema), createUserController);
 
 /**
  * @openapi

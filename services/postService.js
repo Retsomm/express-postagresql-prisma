@@ -15,8 +15,12 @@ export const getPosts = async ({ page, limit }) => {
 
 export const createNewPost = async ({ title, content, authorId, tagIds }) => {
   // 業務規則：檢查邏輯放在這一層，不是 Controller，也不是 Repository
-  const newPost = await postRepository.createPost({ title, content, authorId, tagIds }).catch(() => {
-    throw createAppError('tagIds 中有不存在的標籤', 400);
+  // P2025：connect 的 tagIds 裡有不存在的標籤，其他錯誤（斷線、逾時等）原樣往外丟
+  const newPost = await postRepository.createPost({ title, content, authorId, tagIds }).catch((error) => {
+    if (error.code === 'P2025') {
+      throw createAppError('tagIds 中有不存在的標籤', 400);
+    }
+    throw error;
   });
 
   return newPost;
@@ -36,9 +40,9 @@ export const updateExistingPost = async ({ postId, userId, data }) => {
 
   const { title, content, tagIds } = data;
   return postRepository.updatePost(postId, {
-    ...(title && { title }),
-    ...(content && { content }),
-    ...(tagIds && { tags: { set: tagIds.map((id) => ({ id })) } }),
+    ...(title !== undefined && { title }),
+    ...(content !== undefined && { content }),
+    ...(tagIds !== undefined && { tags: { set: tagIds.map((id) => ({ id })) } }),
   });
 };
 

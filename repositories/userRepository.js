@@ -21,14 +21,13 @@ export const findUserById = (id) => {
   });
 };
 
-export const createUser = ({ name, email }) => {
-  return prisma.user.create({ data: { name, email } });
-};
-
 export const updateUser = (id, data) => {
-  return prisma.user.update({ where: { id }, data });
+  return prisma.user.update({ where: { id }, data, select: safeUserSelect });
 };
 
-export const deleteUser = (id) => {
-  return prisma.user.delete({ where: { id } });
+export const deleteUserWithPosts = (id) => {
+  return prisma.$transaction([
+    prisma.post.deleteMany({ where: { authorId: id } }),
+    prisma.user.delete({ where: { id } }),
+  ]);
 };

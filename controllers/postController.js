@@ -1,10 +1,11 @@
 import * as postService from '../services/postService.js';
 import { successResponse } from '../utils/response.js';
 import catchAsync from '../utils/catchAsync.js';
+import parseId from '../utils/parseId.js';
+import { parsePagination } from '../utils/pagination.js';
 
 export const getPostsController = catchAsync(async (req, res, next) => {
-  const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 10;
+  const { page, limit } = parsePagination(req.query);
 
   const { items, meta } = await postService.getPosts({ page, limit });
 
@@ -25,7 +26,7 @@ export const createPostController = catchAsync(async (req, res, next) => {
 });
 
 export const updatePostController = catchAsync(async (req, res, next) => {
-  const postId = Number(req.params.id);
+  const postId = parseId(req.params.id, 'postId');
 
   const updatedPost = await postService.updateExistingPost({
     postId,
@@ -37,7 +38,7 @@ export const updatePostController = catchAsync(async (req, res, next) => {
 });
 
 export const deletePostController = catchAsync(async (req, res, next) => {
-  const postId = Number(req.params.id);
+  const postId = parseId(req.params.id, 'postId');
 
   await postService.deleteExistingPost({ postId, userId: req.userId });
 

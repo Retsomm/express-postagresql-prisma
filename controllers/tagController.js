@@ -1,6 +1,7 @@
 import * as tagService from '../services/tagService.js';
 import { successResponse } from '../utils/response.js';
 import catchAsync from '../utils/catchAsync.js';
+import parseId from '../utils/parseId.js';
 
 export const getTagsController = catchAsync(async (req, res, next) => {
   const tags = await tagService.getTags();
@@ -17,7 +18,7 @@ export const createTagController = catchAsync(async (req, res, next) => {
 });
 
 export const updateTagController = catchAsync(async (req, res, next) => {
-  const tagId = Number(req.params.id);
+  const tagId = parseId(req.params.id, 'tagId');
 
   const updatedTag = await tagService.updateExistingTag({ tagId, data: req.body });
 
@@ -25,7 +26,7 @@ export const updateTagController = catchAsync(async (req, res, next) => {
 });
 
 export const deleteTagController = catchAsync(async (req, res, next) => {
-  const tagId = Number(req.params.id);
+  const tagId = parseId(req.params.id, 'tagId');
 
   await tagService.deleteExistingTag({ tagId });
 
