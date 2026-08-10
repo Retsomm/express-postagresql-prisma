@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e \"console.log\\(process.allowedNodeEnvironmentFlags.has\\('--experimental-strip-types'\\)\\)\")",
+      "Bash(node -e \"import\\('./generated/prisma/client.ts'\\).then\\(\\(\\)=>console.log\\('OK'\\)\\).catch\\(e=>console.error\\('ERR', e.message\\)\\)\")",
+      "Bash(npm install *)",
+      "Bash(npx prisma *)",
+      "Bash(node -e ' *)",
+      "Bash(node --env-file=.env -e ' *)",
+      "Bash(brew list *)",
+      "Bash(launchctl print *)",
+      "Read(//Users/yutingchan/Library/LaunchAgents/**)",
+      "Bash(xattr ~/Library/LaunchAgents/homebrew.mxcl.redis.plist)",
+      "Bash(cat /opt/homebrew/var/log/redis.log 2>&1 | tail -30)",
+      "Read(//opt/homebrew/var/log/**)",
+      "Bash(grep -n \"loadmodule\\\\|redisbloom\" /opt/homebrew/etc/redis.conf)",
+      "Read(//opt/homebrew/etc/**)",
+      "Bash(launchctl bootout *)",
+      "Bash(brew services *)",
+      "Bash(redis-cli ping *)",
+      "Bash(git ls-remote *)",
+      "Bash(echo \"exit code: $?\")"
+    ],
+    "additionalDirectories": [
+      "/opt/homebrew/etc"
+    ]
+  }
+}
