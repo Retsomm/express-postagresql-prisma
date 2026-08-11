@@ -4,3 +4,6 @@ node_modules
 
 /generated/prisma
 .prisma/
+
+# 由 scripts/generate-swagger.js 在 build 階段產生
+/config/swagger.generated.json
