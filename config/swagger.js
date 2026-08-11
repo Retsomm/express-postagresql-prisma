@@ -71,6 +71,18 @@ const options = {
 
 export const swaggerSpec = swaggerJsdoc(options);
 
+// 暫時性診斷用，找出 Compute 部署環境為何掃不到 routes/*.js 的 JSDoc 之後會移除。
+import fs from 'fs';
+const routesDir = path.join(__dirname, '..', 'routes');
+export const swaggerDebugInfo = {
+  dirname: __dirname,
+  cwd: process.cwd(),
+  apisGlob: options.apis,
+  routesDirExists: fs.existsSync(routesDir),
+  routesDirFiles: fs.existsSync(routesDir) ? fs.readdirSync(routesDir) : null,
+  pathCount: Object.keys(swaggerSpec.paths || {}).length,
+};
+
 // Compute 的 build 只會打包程式碼實際 import 的東西，swagger-ui-express 需要的
 // swagger-ui-dist 靜態檔（css/js）不是用 import 讀取，打包後在部署環境找不到、永遠 404。
 // 改成直接從 CDN 載入這些靜態資源，就不依賴部署環境有沒有把 node_modules 的檔案帶過去。
