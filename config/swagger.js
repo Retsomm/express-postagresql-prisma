@@ -1,75 +1,10 @@
-import swaggerJsdoc from 'swagger-jsdoc';
-import { fileURLToPath } from 'url';
-import path from 'path';
+// swaggerSpec 是 build 階段由 scripts/generate-swagger.js 掃描 routes/*.js
+// 的 JSDoc 註解、預先產生的靜態 JSON（詳見該檔案開頭的說明）。這裡用
+// import 讀取而不是執行期呼叫 swagger-jsdoc，這樣 Bun 把整個 app 打包成
+// bundle 時，這份 JSON 會被內聯進 bundle 裡，不依賴部署環境的檔案系統。
+import swaggerSpec from './swagger.generated.json' with { type: 'json' };
 
-// swagger-jsdoc 的 `apis` glob 是相對於執行時的 process.cwd() 解析，
-// 不是相對於這個檔案。部署環境的工作目錄不一定等於專案根目錄，
-// 用相對路徑在本機測得到、部署後卻可能掃不到任何路由檔（Schemas 正常但 Paths 是空的）。
-// 改成從這個檔案自己的位置算出絕對路徑，就不受執行時的 cwd 影響。
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-const options = {
-  definition: {
-    openapi: '3.0.0',
-    info: {
-      title: '部落格系統 API',
-      version: '1.0.0',
-      description: '使用者、文章、標籤的 RESTful API 文件',
-    },
-    servers: [
-      // 用相對路徑而不是寫死 localhost，這樣不管部署到哪個網域，
-      // Swagger UI 的「Try it out」都會打到目前這個網頁所在的主機
-      { url: '/', description: '目前伺服器' },
-    ],
-    components: {
-      securitySchemes: {
-        bearerAuth: {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT',
-        },
-      },
-      // 新增這一段：定義可重複使用的資料結構
-      schemas: {
-        User: {
-          type: 'object',
-          properties: {
-            id: { type: 'integer', example: 1 },
-            name: { type: 'string', example: '小明' },
-            email: { type: 'string', example: 'ming@example.com' },
-            createdAt: { type: 'string', format: 'date-time' },
-          },
-        },
-        Post: {
-          type: 'object',
-          properties: {
-            id: { type: 'integer', example: 1 },
-            title: { type: 'string', example: '我的第一篇文章' },
-            content: { type: 'string', example: '這是內文' },
-            authorId: { type: 'integer', example: 1 },
-          },
-        },
-        Tag: {
-          type: 'object',
-          properties: {
-            id: { type: 'integer', example: 1 },
-            name: { type: 'string', example: '技術' },
-          },
-        },
-        Error: {
-          type: 'object',
-          properties: {
-            status: { type: 'string', example: 'error' },
-            message: { type: 'string', example: '找不到資料' },
-          },
-        },
-      },
-    },
-  },
-  apis: [path.join(__dirname, '..', 'routes', '*.js')],
-};
-
-export const swaggerSpec = swaggerJsdoc(options);
+export { swaggerSpec };
 
 // Compute 的 build 只會打包程式碼實際 import 的東西，swagger-ui-express 需要的
 // swagger-ui-dist 靜態檔（css/js）不是用 import 讀取，打包後在部署環境找不到、永遠 404。
