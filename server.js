@@ -5,8 +5,7 @@ import postsRouter from './routes/posts.js';
 import tagsRouter from './routes/tags.js';
 import authRouter from './routes/auth.js';
 import createAppError from './errors/AppError.js';
-import swaggerUi from 'swagger-ui-express';
-import { swaggerSpec } from './config/swagger.js';
+import { swaggerSpec, swaggerHtml } from './config/swagger.js';
 
 if (!process.env.JWT_SECRET) {
   throw new Error('缺少環境變數 JWT_SECRET，請在 .env 設定後再啟動伺服器');
@@ -27,7 +26,8 @@ app.use('/posts', postsRouter);
 app.use('/tags', tagsRouter);
 app.use('/auth', authRouter);
 // 放在其他路由掛載的地方即可，建議放在 app.use(express.json()) 之後
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.get('/api-docs/swagger.json', (req, res) => res.json(swaggerSpec));
+app.get('/api-docs', (req, res) => res.type('html').send(swaggerHtml));
 
 app.use((req, res, next )=>{
   next(createAppError(`找不到路徑：${req.originalUrl}`, 404));

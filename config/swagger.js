@@ -62,3 +62,34 @@ const options = {
 };
 
 export const swaggerSpec = swaggerJsdoc(options);
+
+// Compute 的 build 只會打包程式碼實際 import 的東西，swagger-ui-express 需要的
+// swagger-ui-dist 靜態檔（css/js）不是用 import 讀取，打包後在部署環境找不到、永遠 404。
+// 改成直接從 CDN 載入這些靜態資源，就不依賴部署環境有沒有把 node_modules 的檔案帶過去。
+const SWAGGER_UI_VERSION = '5.32.12';
+
+export const swaggerHtml = `<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>部落格系統 API 文件</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@${SWAGGER_UI_VERSION}/swagger-ui.css" />
+</head>
+<body>
+  <div id="swagger-ui"></div>
+  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@${SWAGGER_UI_VERSION}/swagger-ui-bundle.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@${SWAGGER_UI_VERSION}/swagger-ui-standalone-preset.js"></script>
+  <script>
+    window.onload = () => {
+      window.ui = SwaggerUIBundle({
+        url: '/api-docs/swagger.json',
+        dom_id: '#swagger-ui',
+        presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
+        plugins: [SwaggerUIBundle.plugins.DownloadUrl],
+        layout: 'StandaloneLayout',
+      });
+    };
+  </script>
+</body>
+</html>
+`;
