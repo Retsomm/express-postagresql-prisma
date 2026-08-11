@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import * as authRepository from '../repositories/authRepository.js';
 import createAppError from '../errors/AppError.js';
+import { emailQueue } from '../queues/emailQueue.js';
 
 export const registerNewUser = async ({ name, email, password }) => {
   // 業務規則：email 不能重複註冊
@@ -14,6 +15,17 @@ export const registerNewUser = async ({ name, email, password }) => {
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const newUser = await authRepository.createUser({ name, email, hashedPassword });
+
+  // 不直接呼叫寄信函式，而是丟一個任務進佇列
+  // add() 幾乎是瞬間完成的操作（只是把資料寫進 Redis），不會讓這個函式被寄信的耗時卡住
+  await emailQueue.add(
+    'send-welcome-email',
+    { to: newUser.email, name: newUser.name },
+    {
+      attempts: 3, // 失敗時最多重試 3 次
+      backoff: { type: 'exponential', delay: 1000 }, // 每次重試間隔時間遞增（指數退避），避免立刻重試又立刻失敗
+    }
+  );
 
   // 絕對不要把密碼（就算是雜湊過的）回傳給前端，用解構把 password 排除掉
   const { password: _, ...userWithoutPassword } = newUser;
