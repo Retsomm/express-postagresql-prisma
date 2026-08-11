@@ -1,4 +1,12 @@
 import swaggerJsdoc from 'swagger-jsdoc';
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+// swagger-jsdoc 的 `apis` glob 是相對於執行時的 process.cwd() 解析，
+// 不是相對於這個檔案。部署環境的工作目錄不一定等於專案根目錄，
+// 用相對路徑在本機測得到、部署後卻可能掃不到任何路由檔（Schemas 正常但 Paths 是空的）。
+// 改成從這個檔案自己的位置算出絕對路徑，就不受執行時的 cwd 影響。
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const options = {
   definition: {
@@ -58,7 +66,7 @@ const options = {
       },
     },
   },
-  apis: ['./routes/*.js'],
+  apis: [path.join(__dirname, '..', 'routes', '*.js')],
 };
 
 export const swaggerSpec = swaggerJsdoc(options);
